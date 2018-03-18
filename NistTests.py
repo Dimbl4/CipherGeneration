@@ -719,3 +719,43 @@ class NistTest():
         else:
             out = (1.0 / (4 * x * x)) * (1 - 1.0 / (2 * np.abs(x))) ** (k - 1)
         return out
+
+    def random_excursions_variant(self, bin_data):
+        """
+        Note that this description is taken from the NIST documentation [1]
+        [1] http://csrc.nist.gov/publications/nistpubs/800-22-rev1a/SP800-22rev1a.pdf
+        The focus of this test is the total number of times that a particular state is visited (i.e., occurs) in a
+        cumulative sum random walk. The purpose of this test is to detect deviations from the expected number of visits
+        to various states in the random walk. This test is actually a series of eighteen tests (and conclusions), one
+        test and conclusion for each of the states: -9, -8, …, -1 and +1, +2, …, +9.
+        :param bin_data: a binary string
+        :return: the P-value
+        """
+        int_data = np.zeros(len(bin_data))
+        for i in range(len(bin_data)):
+            int_data[i] = int(bin_data[i])
+        sum_int = (2 * int_data) - np.ones(len(int_data))
+        cumulative_sum = np.cumsum(sum_int)
+
+        li_data = []
+        for xs in sorted(set(cumulative_sum)):
+            if np.abs(xs) <= 9:
+                li_data.append([xs, len(np.where(cumulative_sum == xs)[0])])
+
+        j = self.get_frequency(li_data, 0) + 1
+        p_values = []
+        for xs in range(-9, 9 + 1):
+            if not xs == 0:
+                den = np.sqrt(2 * j * (4 * np.abs(xs) - 2))
+                p_values.append(spc.erfc(np.abs(self.get_frequency(li_data, xs) - j) / den))
+        return p_values
+
+    def get_frequency(self, list_data, trigger):
+        """
+        This method is used by the random_excursions_variant method to get frequencies
+        """
+        frequency = 0
+        for (x, y) in list_data:
+            if x == trigger:
+                frequency = y
+        return frequency
