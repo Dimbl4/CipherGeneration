@@ -1,6 +1,6 @@
 # Test helper function for Salsa20 cipher
 
-def bsum(a, b, mode='int'):
+def bsum(a, b, mode='hex'):
     # Available modes: int, hex
     if mode == 'hex':
         a = int(a, 16)
@@ -8,7 +8,7 @@ def bsum(a, b, mode='int'):
     result = (a+b) % 2**32
     return "0x{0:0{1}x}".format(result, 8)
 
-def xor(a, b, mode='int'):
+def xor(a, b, mode='hex'):
     # Available modes: int, hex
     if mode == 'hex':
         a = int(a, 16)
@@ -16,7 +16,7 @@ def xor(a, b, mode='int'):
     result = a ^ b
     return "0x{0:0{1}x}".format(result, 8)
 
-def l_rot(val, bits, mode='int'):
+def l_rot(val, bits, mode='hex'):
     # Available modes: int, hex
     if mode == 'hex':
         val = int(val, 16)
@@ -31,15 +31,15 @@ if __name__ == '__main__':
 
     print("The sum:")
     print("0xc0a8787e + 0x9fd1161d = 0x60798e9b")
-    print("{} + {} = {}\n".format('0xc0a8787e', '0x9fd1161d', bsum('0xc0a8787e', '0x9fd1161d', mode='hex')))
+    print("{} + {} = {}\n".format('0xc0a8787e', '0x9fd1161d', bsum('0xc0a8787e', '0x9fd1161d')))
 
     print("The exclusive-or:")
     print("0xc0a8787e ⊕ 0x9fd1161d = 0x5f796e63")
-    print("{} ⊕ {} = {}\n".format('0xc0a8787e', '0x9fd1161d', xor('0xc0a8787e', '0x9fd1161d', mode='hex')))
+    print("{} ⊕ {} = {}\n".format('0xc0a8787e', '0x9fd1161d', xor('0xc0a8787e', '0x9fd1161d')))
 
     print("The c-bit left rotation")
     print("0xc0a8787e <<< 5 = 0x150f0fd8")
-    print("{} <<< {} = {}\n".format('0xc0a8787e', 5, l_rot('0xc0a8787e', 5, mode='hex')))
+    print("{} <<< {} = {}\n".format('0xc0a8787e', 5, l_rot('0xc0a8787e', 5)))
 
     print("Littleendian:")
     print("littleendian(0, 0, 0, 0) = 0x00000000")
