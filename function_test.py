@@ -40,6 +40,14 @@ def rowround(*args):
     z15, z12, z13, z14 = quarterround([y15, y12, y13, y14])
     return [z0, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12, z13, z14, z15]
 
+def columnround(*args):
+    (x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) = args[0]
+    y0, y4, y8, y12 = quarterround([x0, x4, x8, x12])
+    y5, y9, y13, y1 = quarterround([x5, x9, x13, x1])
+    y10, y14, y2, y6 = quarterround([x10, x14, x2, x6])
+    y15, y3, y7, y11 = quarterround([x15, x3, x7, x11])
+    return [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13, y14, y15]
+
 def littleendian(b0, b1, b2, b3):
     result = "0x{0:0{1}x}".format(b0 + 2**8*b1 + 2**16*b2 + 2**24*b3, 8)
     return result
@@ -93,7 +101,10 @@ if __name__ == '__main__':
     = (0x3e2f308c, 0xd90a8f36, 0x6ab2a923, 0x2883524c)""")
     print("""quarterround(0xd3917c5b, 0x55f1c407, 0x52a58a7a, 0x8f887a3b)
     = {}""".format(quarterround(['0xd3917c5b', '0x55f1c407', '0x52a58a7a', '0x8f887a3b'])))
+
+    # rowround
     print("#"*80)
+    print("Rowround:")
     print(['0x08008145', '0x00000080', '0x00010200', '0x20500000',
             '0x20100001', '0x00048044', '0x00000080', '0x00010000',
             '0x00000001', '0x00002000', '0x80040000', '0x00000000',
@@ -111,6 +122,27 @@ if __name__ == '__main__':
                     '0xc54c6a5b', '0x2fc74c2f', '0x6dd39cc3', '0xda0a64f6',
                     '0x90a2f23d', '0x067f95a6', '0x06b35f61', '0x41e4732e',
                     '0xe859c100', '0xea4d84b7', '0x0f619bff', '0xbc6e965a']))
+
+    # columnround
+    print("#"*80)
+    print("Columnround:")
+    print(['0x10090288', '0x00000000', '0x00000000', '0x00000000',
+           '0x00000101', '0x00000000', '0x00000000', '0x00000000',
+           '0x00020401', '0x00000000', '0x00000000', '0x00000000',
+           '0x40a04001', '0x00000000', '0x00000000', '0x00000000'])
+    print(columnround(['0x00000001', '0x00000000', '0x00000000', '0x00000000',
+                    '0x00000001', '0x00000000', '0x00000000', '0x00000000',
+                    '0x00000001', '0x00000000', '0x00000000', '0x00000000',
+                    '0x00000001', '0x00000000', '0x00000000', '0x00000000']))
+    print()
+    print(['0x8c9d190a', '0xce8e4c90', '0x1ef8e9d3', '0x1326a71a',
+           '0x90a20123', '0xead3c4f3', '0x63a091a0', '0xf0708d69',
+           '0x789b010c', '0xd195a681', '0xeb7d5504', '0xa774135c',
+           '0x481c2027', '0x53a8e4b5', '0x4c1f89c5', '0x3f78c9c8'])
+    print(columnround(['0x08521bd6', '0x1fe88837', '0xbb2aa576', '0x3aa26365',
+                       '0xc54c6a5b', '0x2fc74c2f', '0x6dd39cc3', '0xda0a64f6',
+                       '0x90a2f23d', '0x067f95a6', '0x06b35f61', '0x41e4732e',
+                       '0xe859c100', '0xea4d84b7', '0x0f619bff', '0xbc6e965a']))
 
     print("#"*80)
     print("Littleendian:")
