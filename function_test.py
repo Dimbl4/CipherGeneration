@@ -48,6 +48,10 @@ def columnround(*args):
     y15, y3, y7, y11 = quarterround([x15, x3, x7, x11])
     return [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13, y14, y15]
 
+def doubleround(*args):
+    # (x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) =
+    return rowround(columnround(args[0]))
+
 def littleendian(b0, b1, b2, b3):
     result = "0x{0:0{1}x}".format(b0 + 2**8*b1 + 2**16*b2 + 2**24*b3, 8)
     return result
@@ -143,7 +147,26 @@ if __name__ == '__main__':
                        '0xc54c6a5b', '0x2fc74c2f', '0x6dd39cc3', '0xda0a64f6',
                        '0x90a2f23d', '0x067f95a6', '0x06b35f61', '0x41e4732e',
                        '0xe859c100', '0xea4d84b7', '0x0f619bff', '0xbc6e965a']))
-
+    # doubleround
+    print("#"*80)
+    print("Doubleround:")
+    print(['0x8186a22d', '0x0040a284', '0x82479210', '0x06929051',
+           '0x08000090', '0x02402200', '0x00004000', '0x00800000',
+           '0x00010200', '0x20400000', '0x08008104', '0x00000000',
+           '0x20500000', '0xa0000040', '0x0008180a', '0x612a8020'])
+    print(doubleround(['0x00000001', '0x00000000', '0x00000000', '0x00000000',
+                       '0x00000000', '0x00000000', '0x00000000', '0x00000000',
+                       '0x00000000', '0x00000000', '0x00000000', '0x00000000',
+                       '0x00000000', '0x00000000', '0x00000000', '0x00000000']))
+    print()
+    print(['0xccaaf672', '0x23d960f7', '0x9153e63a', '0xcd9a60d0',
+           '0x50440492', '0xf07cad19', '0xae344aa0', '0xdf4cfdfc',
+           '0xca531c29', '0x8e7943db', '0xac1680cd', '0xd503ca00',
+           '0xa74b2ad6', '0xbc331c5c', '0x1dda24c7', '0xee928277'])
+    print(doubleround(['0xde501066', '0x6f9eb8f7', '0xe4fbbd9b', '0x454e3f57',
+                       '0xb75540d3', '0x43e93a4c', '0x3a6f2aa0', '0x726d6b36',
+                       '0x9243f484', '0x9145d1e8', '0x4fa9d247', '0xdc8dee11',
+                       '0x054bf545', '0x254dd653', '0xd9421b6d', '0x67b276c1']))
     print("#"*80)
     print("Littleendian:")
     print("littleendian(0, 0, 0, 0) = 0x00000000")
