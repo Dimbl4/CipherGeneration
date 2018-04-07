@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from math import floor
+import numpy as np
 
 class Cipher():
     sigma0 = [101, 120, 112, 97]
@@ -20,51 +21,44 @@ class Cipher():
 
     def bsum(self, a, b, mode='int'):
         # Available modes: int, hex
-        if mode == 'hex':
-            a = int(a, 16)
-            b = int(b, 16)
+        # if mode == 'hex':
+        #     a = int(a, 16)
+        #     b = int(b, 16)
         result = (a+b) % 2**32
-        if mode == 'int':
-            return result
-        else:
-            return "0x{0:0{1}x}".format(result, 8)
+        return result
 
     def bxor(self, a, b, mode='int'):
         # Available modes: int, hex
-        if mode == 'hex':
-            a = int(a, 16)
-            b = int(b, 16)
         result = a ^ b
-        if mode=='int':
-            return result
-        else:
-            return "0x{0:0{1}x}".format(result, 8)
+        return result
 
     def l_rot(self, val, bits, mode='int'):
         # Available modes: int, hex
-        if mode == 'hex':
-            val = int(val, 16)
-        tmp = bin(val)[2:].zfill(32)
+        tmp = "{0:032b}".format(val)
         result = int(tmp[bits:] + tmp[:bits], 2)
-        if mode == 'int':
-            return result
-        else:
-            return "0x{0:0{1}x}".format(result, 8)
+        return result
 
-    def quarterround(self, *args):
-        (y0, y1, y2, y3) = args[0]
-        z1 = self.bxor(y1, self.l_rot(self.bsum(y0, y3), 7))
-        z2 = self.bxor(y2, self.l_rot(self.bsum(z1, y0), 9))
-        z3 = self.bxor(y3, self.l_rot(self.bsum(z2, z1), 13))
-        z0 = self.bxor(y0, self.l_rot(self.bsum(z3, z2), 18))
-        return [z0, z1, z2, z3]
+    def row_roll(self, arr, roll_list):
+        return np.array([np.roll(arr, x) for arr, x in zip(arr, roll_list)])
 
-    def rowround(self, *args):
-        (y0, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13, y14, y15) = args[0]
-        z0, z1, z2, z3 = self.quarterround([y0, y1, y2, y3])
-        z5, z6, z7, z4 = self.quarterround([y5, y6, y7, y4])
-        z10, z11, z8, z9 = self.quarterround([y10, y11, y8, y9])
-        z15, z12, z13, z14 = self.quarterround([y15, y12, y13, y14])
+    def column_roll(self, arr, roll_list):
+        return np.array([np.roll(arr, x, axis=0) for arr, x in zip(arr, roll_list)])
+
+    def quarterround(self, y):
+        z = [0]*4
+        z[1] = self.bxor(y[1], self.l_rot(self.bsum(y[0], y[3]), 7))
+        z[2] = self.bxor(y[2], self.l_rot(self.bsum(z[1], y[0]), 9))
+        z[3] = self.bxor(y[3], self.l_rot(self.bsum(z[2], z[1]), 13))
+        z[0] = self.bxor(y[0], self.l_rot(self.bsum(z[3], z[2]), 18))
+        return z
+
+    def rowround(self, y):
+        y = np.array(y).reshape(4, 4)
+        y_rolled = self.row_roll(y, [0, -1, -2, -3])
+        z0, z1, z2, z3 = self.quarterround(y_rolled[0,:])
+        z5, z6, z7, z4 = self.quarterround(y_rolled[1,:])
+        z10, z11, z8, z9 = self.quarterround(y_rolled[2,:])
+        z15, z12, z13, z14 = self.quarterround(y_rolled[3,:])
         return [z0, z1, z2, z3, z4, z5, z6, z7, z8, z9, z10, z11, z12, z13, z14, z15]
 
     def columnround(self, *args):
@@ -76,16 +70,12 @@ class Cipher():
         return [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11, y12, y13, y14, y15]
 
     def doubleround(self, *args):
-        # (x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) =
         return self.rowround(self.columnround(args[0]))
 
     def littleendian(self, *args, mode='int'):
         (b0, b1, b2, b3) = args[0]
         result = b0 + 2**8*b1 + 2**16*b2 + 2**24*b3
-        if mode=='int':
-            return result
-        else:
-            return "0x{0:0{1}x}".format(result, 8)
+        return result
 
     def littleendian_reverse(self, word, mode='int'):
         if mode=='int':
